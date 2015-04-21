@@ -59,5 +59,30 @@ namespace TDDProblem
 
             return true;
         }
+
+        public static void CreateFileBinForTesting(IList<string[,]> listMatrixValues)
+        {
+            int i = 1;
+            foreach (var value in listMatrixValues)
+            {
+                i++;
+                FileStream fs = new FileStream("file" + i + ".bin", FileMode.Create);
+                BinaryFormatter formatter = new BinaryFormatter();
+                try
+                {
+                    formatter.Serialize(fs, value);
+                    fs.Flush();
+                }
+                catch (SerializationException e)
+                {
+                    Console.WriteLine("Serializzazione fallita: {0}", e.Message);
+                    throw;
+                }
+                finally
+                {
+                    fs.Close();
+                }
+            }
+        }
     }
 }

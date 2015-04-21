@@ -12,28 +12,27 @@ using TDDProblem;
 namespace TDDProblem.Tests
 {
     [TestFixture]
+    //Integration test Class
     public class ItProblemTest
     {
-        private static readonly string[] FileBins = { "file1.bin", "file2.bin", "file3.bin" };
-
         [SetUp]
         public void SetUp()
         {
-            IList<string[,]> listValues = new List<String[,]>
+            IList<Tuple<string, string[,]>> tuples = new List<Tuple<string, string[,]>>
                     {
-                        new string[3, 2] {{"num_connections", "65"}, {"latency_ms", "70"}, {"bandwidth", "20"}},
-                        new string[3, 2] {{"num_connections", "40"}, {"latency_ms", "30"}, {"bandwidth", "20"}},
-                        new string[3, 2] {{"num_connections", "20"}, {"latency_ms", "20"}, {"bandwidth", "10"}}
+                       new Tuple<string,string[,]>("file1.bin", new string[3, 2] {{"num_connections", "65"}, {"latency_ms", "70"}, {"bandwidth", "20"}}),
+                       new Tuple<string,string[,]>("file2.bin", new string[3, 2] {{"num_connections", "40"}, {"latency_ms", "30"}, {"bandwidth", "20"}}),
+                       new Tuple<string,string[,]>("file3.bin", new string[3, 2] {{"num_connections", "20"}, {"latency_ms", "20"}, {"bandwidth", "10"}})
                     };
 
             Console.WriteLine("Creazione file temporanei..");
-            for (int i = 0; i < 3; i++)
+            foreach (var value in tuples)
             {
-                FileStream fs = new FileStream(FileBins[i], FileMode.Create);
+                FileStream fs = new FileStream(value.Item1, FileMode.Create);
                 BinaryFormatter formatter = new BinaryFormatter();
                 try
                 {
-                    formatter.Serialize(fs, listValues.ElementAt(i));
+                    formatter.Serialize(fs, value.Item2);
                     fs.Flush();
                 }
                 catch (SerializationException e)
@@ -53,9 +52,11 @@ namespace TDDProblem.Tests
         [Category("Integration testing")]
         public void Bin2Tsv_ReturnReportAndFilesTsvCreated()
         {
+            //Arrange
             IFilesRepository filesRepository = new FilesRepository();
             Convert convert = new Convert(filesRepository);
 
+            //Act
             Report rpt = convert.BinToTsv(".", ".");
 
             //Assert
@@ -64,22 +65,29 @@ namespace TDDProblem.Tests
             Assert.AreEqual(3, rpt.TsvFilesCreated);
         }
 
+        [TestCaseSource(typeof(TddProblemTest.TestCaseFactory), "TestCaseListMatrixValues")]
+        public void CreateBinFiles_ReturnFilesBinCreated(List<string[,]> listMatrixValues)
+        {
+            FilesRepository.CreateFileBinForTesting(listMatrixValues);
+            Assert.AreEqual(3, listMatrixValues.Count);
+
+        }
 
         [TearDown]
         public void TearDown()
         {
-            for (int i = 0; i < 3; i++)
+            string[] filePaths = Directory.GetFiles(".", "file*");
+            foreach (string filePath in filePaths)
             {
                 try
                 {
-                    File.Delete(FileBins[i]);
+                    File.Delete(filePath);
                     Console.WriteLine("Cancellazione file temporanei..");
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine("Impossibile cancellare i file: {0}", ex.Message);
                 }
-
             }
         }
     }

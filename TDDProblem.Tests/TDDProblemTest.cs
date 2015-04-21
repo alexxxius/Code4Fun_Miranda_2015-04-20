@@ -107,9 +107,10 @@ namespace TDDProblem.Tests
             //Assert
             Assert.AreEqual(50, rpt.TotalBandwith());
             Assert.AreEqual(40, rpt.AvgLatency());
+            Assert.AreEqual(3, rpt.TsvFilesCreated);
         }
 
-       
+
         public class TestCaseFactory
         {
             public static IEnumerable TestCaseMatrixValues
@@ -134,6 +135,8 @@ namespace TDDProblem.Tests
                     yield return new TestCaseData(list);
                 }
             }
+
+            
         }
     }
 }
