@@ -23,19 +23,21 @@ namespace TDDProblem
             return tsvValues;
         }
 
-        public void BinToTsv()
+        public Report BinToTsv(String pathBinFiles, String pathTsvFiles)
         {
-            IList<string[,]> values = _filesBinRepository.LoadFilesFromPath("");
+            IList<string[,]> values = _filesBinRepository.LoadFilesFromPath(pathBinFiles);
 
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var value in values)
             {
                 IList<string> tsvStrings = Convert.FromMatrixToTsv(value);
-                if (!_filesBinRepository.Save("", tsvStrings))
+                if (!_filesBinRepository.Save(pathTsvFiles, tsvStrings))
                 {
                     throw new Exception("Impossibile salvare i file tsv!");
                 }
             }
+
+            return new Report(values);
         }
     }
 }

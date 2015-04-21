@@ -33,31 +33,6 @@ namespace TDDProblem.Tests
             CollectionAssert.AreEqual(expectedTsvStrings, actualTsvStrings);
         }
 
-        [Test]
-        public void BinToTsv_WhenFilesBinLoaded_Throw()
-        {
-            //Arrange
-            var mockIFilesBinRepository = new Mock<IFilesBinRepository>();
-            mockIFilesBinRepository.Setup(s => s.LoadFilesFromPath("")).Returns(new List<String[,]>
-            {
-                new string[3, 2] {{"num_connections", "65"}, {"latency_ms", "70"}, {"bandwidth", "20"}},
-                new string[3, 2] {{"num_connections", "40"}, {"latency_ms", "30"}, {"bandwidth", "20"}},
-                new string[3, 2] {{"num_connections", "20"}, {"latency_ms", "20"}, {"bandwidth", "10"}}
-            });
-
-            mockIFilesBinRepository.Setup(s => s.Save("", new List<string>())).Returns(false);
-
-            //Act
-            var ex = Assert.Catch(() =>
-              {
-                  Convert convert = new Convert(mockIFilesBinRepository.Object);
-                  convert.BinToTsv();
-              });
-
-            //Assert
-            StringAssert.Contains("Impossibile salvare i file tsv!", ex.Message);
-        }
-
         [TestCaseSource(typeof(TddProblemTest.TestCaseFactory), "TestCaseListMatrixValues")]
         public void CalculateTotalBandWidth_AfterReadFilesBin_Return50(List<string[,]> listMatrixValues)
         {
@@ -82,6 +57,56 @@ namespace TDDProblem.Tests
 
             //Assert
             Assert.AreEqual(40, avgLatency);
+        }
+
+
+        [Test]
+        public void BinToTsv_WhenNotAllFilesBinAreSaved_Throw()
+        {
+            //Arrange
+            var mockIFilesBinRepository = new Mock<IFilesBinRepository>();
+
+            mockIFilesBinRepository.Setup(s => s.LoadFilesFromPath(It.IsAny<string>())).Returns(new List<String[,]>
+            {
+                new string[3, 2] {{"num_connections", "65"}, {"latency_ms", "70"}, {"bandwidth", "20"}},
+                new string[3, 2] {{"num_connections", "40"}, {"latency_ms", "30"}, {"bandwidth", "20"}},
+                new string[3, 2] {{"num_connections", "20"}, {"latency_ms", "20"}, {"bandwidth", "10"}}
+            });
+
+            mockIFilesBinRepository.Setup(s => s.Save(It.IsAny<string>(), It.IsAny<IList<string>>())).Returns(false);
+            //Act
+            var ex = Assert.Catch(() =>
+              {
+                  Convert convert = new Convert(mockIFilesBinRepository.Object);
+                  convert.BinToTsv(It.IsAny<string>(), It.IsAny<string>());
+              });
+
+            //Assert
+            StringAssert.Contains("Impossibile salvare i file tsv!", ex.Message);
+        }
+
+        [Test]
+        public void BinToTsv_AfterFileBinRead_ReturnReport()
+        {
+            //Arrange
+            var mockIFilesBinRepository = new Mock<IFilesBinRepository>();
+            
+            mockIFilesBinRepository.Setup(s => s.LoadFilesFromPath(It.IsAny<string>())).Returns(new List<String[,]>
+            {
+                new string[3, 2] {{"num_connections", "65"}, {"latency_ms", "70"}, {"bandwidth", "20"}},
+                new string[3, 2] {{"num_connections", "40"}, {"latency_ms", "30"}, {"bandwidth", "20"}},
+                new string[3, 2] {{"num_connections", "20"}, {"latency_ms", "20"}, {"bandwidth", "10"}}
+            });
+            mockIFilesBinRepository.Setup(s => s.Save(It.IsAny<string>(), It.IsAny<IList<string>>())).Returns(true);
+
+            //Act
+            Convert convert = new Convert(mockIFilesBinRepository.Object);
+            Report rpt = convert.BinToTsv(It.IsAny<string>(), It.IsAny<string>());
+
+
+            //Assert
+            Assert.AreEqual(50, rpt.TotalBandwith());
+            Assert.AreEqual(40, rpt.AvgLatency());
         }
 
 
