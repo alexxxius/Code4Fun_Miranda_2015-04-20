@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.Windows.Markup;
 
 namespace TDDProblem
 {
     public class Convert
     {
-        private readonly IFilesBinRepository _filesBinRepository;
+        private readonly IFilesRepository _filesRepository;
 
-        public Convert(IFilesBinRepository filesBinRepository)
+        public Convert(IFilesRepository filesRepository)
         {
-            _filesBinRepository = filesBinRepository;
+            _filesRepository = filesRepository;
         }
 
         public static IList<string> FromMatrixToTsv(string[,] arrayValues)
@@ -25,16 +26,18 @@ namespace TDDProblem
 
         public Report BinToTsv(String pathBinFiles, String pathTsvFiles)
         {
-            IList<string[,]> values = _filesBinRepository.LoadFilesFromPath(pathBinFiles);
+            IList<Tuple<string, string[,]>> tuples = _filesRepository.LoadFilesFromPath(pathBinFiles);
 
             // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var value in values)
+            IList<string[,]> values = new List<string[,]>();
+            foreach (var tupla in tuples)
             {
-                IList<string> tsvStrings = Convert.FromMatrixToTsv(value);
-                if (!_filesBinRepository.Save(pathTsvFiles, tsvStrings))
+                IList<string> tsvStrings = Convert.FromMatrixToTsv(tupla.Item2);
+                if (!_filesRepository.SaveTsvFiles(pathTsvFiles, tupla.Item1, tsvStrings))
                 {
                     throw new Exception("Impossibile salvare i file tsv!");
                 }
+                values.Add(tupla.Item2);
             }
 
             return new Report(values);

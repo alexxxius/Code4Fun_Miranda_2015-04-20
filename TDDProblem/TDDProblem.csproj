@@ -42,8 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Convert.cs" />
-    <Compile Include="FilesBinRepository.cs" />
-    <Compile Include="IFilesBinRepository.cs" />
+    <Compile Include="FilesRepository.cs" />
+    <Compile Include="IFilesRepository.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Report.cs" />

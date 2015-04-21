@@ -12,10 +12,9 @@ using TDDProblem;
 namespace TDDProblem.Tests
 {
     [TestFixture]
-    [Category("Integration testing")]
     public class ItProblemTest
     {
-        private static string[] fileBins = new string[] { "file1.Bin", "file2.Bin", "file3.Bin" };
+        private static readonly string[] FileBins = { "file1.bin", "file2.bin", "file3.bin" };
 
         [SetUp]
         public void SetUp()
@@ -27,17 +26,15 @@ namespace TDDProblem.Tests
                         new string[3, 2] {{"num_connections", "20"}, {"latency_ms", "20"}, {"bandwidth", "10"}}
                     };
 
+            Console.WriteLine("Creazione file temporanei..");
             for (int i = 0; i < 3; i++)
             {
-                //IFilesBinRepository filesBinRepository = new FilesBinRepository();
-
-                FileStream fs = new FileStream(fileBins[0], FileMode.Create);
-
-
+                FileStream fs = new FileStream(FileBins[i], FileMode.Create);
                 BinaryFormatter formatter = new BinaryFormatter();
                 try
                 {
                     formatter.Serialize(fs, listValues.ElementAt(i));
+                    fs.Flush();
                 }
                 catch (SerializationException e)
                 {
@@ -51,10 +48,20 @@ namespace TDDProblem.Tests
             }
         }
 
+
         [Test]
-        public void Bin2Tsv_returnReport()
+        [Category("Integration testing")]
+        public void Bin2Tsv_ReturnReportAndFilesTsvCreated()
         {
-            
+            IFilesRepository filesRepository = new FilesRepository();
+            Convert convert = new Convert(filesRepository);
+
+            Report rpt = convert.BinToTsv(".", ".");
+
+            //Assert
+            Assert.AreEqual(50, rpt.TotalBandwith());
+            Assert.AreEqual(40, rpt.AvgLatency());
+            Assert.AreEqual(3, rpt.TsvFilesCreated);
         }
 
 
@@ -65,7 +72,8 @@ namespace TDDProblem.Tests
             {
                 try
                 {
-                    File.Delete(fileBins[i]);
+                    File.Delete(FileBins[i]);
+                    Console.WriteLine("Cancellazione file temporanei..");
                 }
                 catch (Exception ex)
                 {

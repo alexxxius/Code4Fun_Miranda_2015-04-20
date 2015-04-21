@@ -21,5 +21,10 @@ namespace TDDProblem
         {
             return _listArrayValues.Average(arrayValues => int.Parse(arrayValues[1, 1]));
         }
+
+        public int TsvFilesCreated
+        {
+            get { return _listArrayValues.Count(); }
+        }
     }
 }
