@@ -7,7 +7,6 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using TDDProblem;
 
 namespace TDDProblem.Tests
 {
@@ -43,6 +42,7 @@ namespace TDDProblem.Tests
                 finally
                 {
                     fs.Close();
+                    fs.Dispose();
                 }
             }
         }
@@ -64,15 +64,7 @@ namespace TDDProblem.Tests
             Assert.AreEqual(40, rpt.AvgLatency());
             Assert.AreEqual(3, rpt.TsvFilesCreated);
         }
-
-        [TestCaseSource(typeof(TddProblemTest.TestCaseFactory), "TestCaseListMatrixValues")]
-        public void CreateBinFiles_ReturnFilesBinCreated(List<string[,]> listMatrixValues)
-        {
-            FilesRepository.CreateFileBinForTesting(listMatrixValues);
-            Assert.AreEqual(3, listMatrixValues.Count);
-
-        }
-
+        
         [TearDown]
         public void TearDown()
         {

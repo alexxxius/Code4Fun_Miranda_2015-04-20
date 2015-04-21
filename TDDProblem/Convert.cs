@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Windows.Markup;
 
 namespace TDDProblem
@@ -27,7 +28,7 @@ namespace TDDProblem
         public Report BinToTsv(String pathBinFiles, String pathTsvFiles)
         {
             IList<Tuple<string, string[,]>> tuples = _filesRepository.LoadFilesFromPath(pathBinFiles);
-
+            
             // ReSharper disable once LoopCanBeConvertedToQuery
             IList<string[,]> values = new List<string[,]>();
             foreach (var tupla in tuples)

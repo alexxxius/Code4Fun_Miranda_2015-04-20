@@ -42,6 +42,9 @@ namespace TDDProblem
 
         public bool SaveTsvFiles(string path, string fileName, IList<string> tsvStrings)
         {
+            if (!Directory.Exists(path))
+                Directory.CreateDirectory(path);
+
             using (StreamWriter file = new StreamWriter(Path.Combine(path, fileName + ".tsv")))
             {
                 try
@@ -58,31 +61,6 @@ namespace TDDProblem
             }
 
             return true;
-        }
-
-        public static void CreateFileBinForTesting(IList<string[,]> listMatrixValues)
-        {
-            int i = 1;
-            foreach (var value in listMatrixValues)
-            {
-                i++;
-                FileStream fs = new FileStream("file" + i + ".bin", FileMode.Create);
-                BinaryFormatter formatter = new BinaryFormatter();
-                try
-                {
-                    formatter.Serialize(fs, value);
-                    fs.Flush();
-                }
-                catch (SerializationException e)
-                {
-                    Console.WriteLine("Serializzazione fallita: {0}", e.Message);
-                    throw;
-                }
-                finally
-                {
-                    fs.Close();
-                }
-            }
         }
     }
 }
