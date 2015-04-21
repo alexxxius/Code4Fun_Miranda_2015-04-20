@@ -1,0 +1,9 @@
+Exercise
+Suppose you have a folder full of binary files and a class Converter with a BinToTSV method which you can pass the name of a binary file to generate a Tab Separated Value file.
+Every TSV file has a key on each line and a value next to it spaced with a tab:
+num_connections 65
+latency_ms 70
+bandwidth 20
+...
+Write a method to calculate the average latency and total bandwidth.
+
