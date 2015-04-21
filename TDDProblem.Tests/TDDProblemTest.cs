@@ -1,0 +1,114 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using NUnit.Framework;
+using System.Collections;
+using System.Runtime.InteropServices;
+using Moq;
+using TDDProblem.Tests;
+
+
+namespace TDDProblem.Tests
+{
+    [TestFixture]
+    public class TddProblemTest
+    {
+        [TestCaseSource(typeof(TddProblemTest.TestCaseFactory), "TestCaseMatrixValues")]
+        public void FromMatrixToTsv_AfterFileBinRead_ReturnEqual(string[,] arrayValues)
+        {
+            //Arrange
+            IEnumerable expectedTsvStrings = new List<String>()
+            {
+                String.Format("{0}\t{1}", "num_connections", 65), 
+                String.Format("{0}\t{1}", "latency_ms", 70),
+                String.Format("{0}\t{1}", "bandwidth", 20)
+            };
+
+            //Act
+            IList<String> actualTsvStrings = Convert.FromMatrixToTsv(arrayValues);
+
+            //Assert
+            CollectionAssert.AreEqual(expectedTsvStrings, actualTsvStrings);
+        }
+
+        [Test]
+        public void BinToTsv_WhenFilesBinLoaded_Throw()
+        {
+            //Arrange
+            var mockIFilesBinRepository = new Mock<IFilesBinRepository>();
+            mockIFilesBinRepository.Setup(s => s.LoadFilesFromPath("")).Returns(new List<String[,]>
+            {
+                new string[3, 2] {{"num_connections", "65"}, {"latency_ms", "70"}, {"bandwidth", "20"}},
+                new string[3, 2] {{"num_connections", "40"}, {"latency_ms", "30"}, {"bandwidth", "20"}},
+                new string[3, 2] {{"num_connections", "20"}, {"latency_ms", "20"}, {"bandwidth", "10"}}
+            });
+
+            mockIFilesBinRepository.Setup(s => s.Save("", new List<string>())).Returns(false);
+
+            //Act
+            var ex = Assert.Catch(() =>
+              {
+                  Convert convert = new Convert(mockIFilesBinRepository.Object);
+                  convert.BinToTsv();
+              });
+
+            //Assert
+            StringAssert.Contains("Impossibile salvare i file tsv!", ex.Message);
+        }
+
+        [TestCaseSource(typeof(TddProblemTest.TestCaseFactory), "TestCaseListMatrixValues")]
+        public void CalculateTotalBandWidth_AfterReadFilesBin_Return50(List<string[,]> listMatrixValues)
+        {
+            //Arrange
+            Report rpt = new Report(listMatrixValues);
+
+            //Act
+            int totalBandwith = rpt.TotalBandwith();
+
+            //Assert
+            Assert.AreEqual(50, totalBandwith);
+        }
+
+        [TestCaseSource(typeof(TddProblemTest.TestCaseFactory), "TestCaseListMatrixValues")]
+        public void CalculateAvgLatency_AfterReadFilesBin_Return40(List<string[,]> listMatrixValues)
+        {
+            //Arrange
+            Report rpt = new Report(listMatrixValues);
+
+            //Act
+            double avgLatency = rpt.AvgLatency();
+
+            //Assert
+            Assert.AreEqual(40, avgLatency);
+        }
+
+
+        public class TestCaseFactory
+        {
+            public static IEnumerable TestCaseMatrixValues
+            {
+                get
+                {
+                    yield return new TestCaseData(new string[3, 2] { { "num_connections", "65" }, { "latency_ms", "70" }, { "bandwidth", "20" } });
+                }
+            }
+
+            public static IEnumerable TestCaseListMatrixValues
+            {
+                get
+                {
+                    var list = new List<String[,]>
+                    {
+                        new string[3, 2] {{"num_connections", "65"}, {"latency_ms", "70"}, {"bandwidth", "20"}},
+                        new string[3, 2] {{"num_connections", "40"}, {"latency_ms", "30"}, {"bandwidth", "20"}},
+                        new string[3, 2] {{"num_connections", "20"}, {"latency_ms", "20"}, {"bandwidth", "10"}}
+                    };
+
+                    yield return new TestCaseData(list);
+                }
+            }
+        }
+    }
+}
