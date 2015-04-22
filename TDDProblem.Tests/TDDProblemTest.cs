@@ -7,7 +7,6 @@ using NUnit.Framework;
 using System.Collections;
 using System.Runtime.InteropServices;
 using Moq;
-using TDDProblem.Tests;
 
 
 namespace TDDProblem.Tests

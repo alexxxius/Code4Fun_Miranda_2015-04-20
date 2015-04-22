@@ -13,6 +13,11 @@ namespace TDDProblem
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("********************************************************************************");
+            Console.WriteLine("* Svolgimento esercizio elencato nel file problems.txt.                        *");
+            Console.WriteLine("* I file bin verrano generati automaticamente in maniera random nella cartella *");
+            Console.WriteLine("* 'BinRepository' e convertiti in file tsv nella cartella 'TsvRepository'.     *");
+            Console.WriteLine("********************************************************************************\n");
             Console.WriteLine("Generazione file bin.. (Premi invio per continuare...)");
             Console.ReadLine();
 
@@ -22,7 +27,7 @@ namespace TDDProblem
             Console.WriteLine("/------------------------------------------------------------------------------\\");
             Console.WriteLine("Generati {0} file bin", listValues.Count);
             Console.WriteLine("");
-            Console.WriteLine("Conversione dei file bin->tsv e output report.. (Premi invio per continuare...)");
+            Console.WriteLine("Conversione dei file bin->tsv e output report..(Premi invio per continuare...)");
             Console.ReadLine();
 
             Convert convert = new Convert(new FilesRepository());
@@ -87,8 +92,6 @@ namespace TDDProblem
                 {
                     fs.Close();
                     fs.Dispose();
-
-
                 }
             }
         }
